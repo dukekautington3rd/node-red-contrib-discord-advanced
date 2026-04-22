@@ -1,4 +1,3 @@
-const Flatted = require('flatted');
 module.exports = function (RED) {
   var discordSelfBotManager = require('./lib/discordSelfBotManager.js');
 
@@ -31,8 +30,8 @@ module.exports = function (RED) {
               _msgid: msgid
             };
             msg.payload = message.content;
-            msg.channel = safeSerialize(message.channel);
-            msg.member = safeSerialize(message.member);
+            msg.channel = getSafeChannel(message.channel);
+            msg.member = getSafeMember(message.member);
             msg.memberRoleNames = message.member ? message.member.roles.cache.each(function (item) {
               return item.name;
             }) : null;
@@ -41,9 +40,7 @@ module.exports = function (RED) {
             }) : null;
 
             try {
-              msg.data = safeSerialize(message);
-              msg.data.attachments = safeSerialize(message.attachments);
-              msg.data.reference = message.reference;
+              msg.data = getSafeMessageData(message);
             } catch (e) {
               node.warn("Could not set `msg.data`: JSON serialization failed");
             }
@@ -65,7 +62,7 @@ module.exports = function (RED) {
               node.send(msg);
             } else {
               message.author.fetch(true).then(author => {
-                msg.author = safeSerialize(author);
+                msg.author = getSafeAuthor(author);
                 node.send(msg);
               }).catch(error => {
                 node.error(error);
@@ -115,22 +112,115 @@ module.exports = function (RED) {
   RED.nodes.registerType("discordSelfMessage", discordSelfMessage);
 };
 
-function safeSerialize(value)
+function getSafeAuthor(author)
 {
-  if (value === undefined || value === null) {
-    return value;
+  if (!author) {
+    return null;
   }
+  return {
+    id: author.id,
+    bot: author.bot,
+    system: author.system,
+    flags: author.flags || null,
+    username: author.username,
+    discriminator: author.discriminator,
+    avatar: author.avatar,
+    createdTimestamp: author.createdTimestamp,
+    tag: author.tag
+  };
+}
 
-  try {
-    return Flatted.parse(Flatted.stringify(value));
-  } catch (error) {
-    // Fall back to plain JSON object to avoid runtime crashes on discord.js-selfbot internals.
-    try {
-      return JSON.parse(JSON.stringify(value));
-    } catch (fallbackError) {
-      return {};
-    }
+function getSafeChannel(channel)
+{
+  if (!channel) {
+    return null;
   }
+  return {
+    id: channel.id,
+    name: channel.name,
+    type: channel.type,
+    guildId: channel.guildId || null,
+    parentId: channel.parentId || null,
+    topic: channel.topic || null,
+    nsfw: !!channel.nsfw,
+    lastMessageId: channel.lastMessageId || null
+  };
+}
+
+function getSafeMember(member)
+{
+  if (!member) {
+    return null;
+  }
+  return {
+    id: member.id,
+    userId: member.user ? member.user.id : null,
+    nickname: member.nickname || null,
+    displayName: member.displayName || null,
+    joinedTimestamp: member.joinedTimestamp || null,
+    premiumSinceTimestamp: member.premiumSinceTimestamp || null,
+    pending: !!member.pending,
+    communicationDisabledUntilTimestamp: member.communicationDisabledUntilTimestamp || null,
+    roles: member.roles && member.roles.cache ? member.roles.cache.map(function (role) {
+      return {
+        id: role.id,
+        name: role.name
+      };
+    }) : []
+  };
+}
+
+function getSafeMessageData(message)
+{
+  return {
+    id: message.id,
+    content: message.content,
+    channelId: message.channelId,
+    guildId: message.guildId || null,
+    createdTimestamp: message.createdTimestamp,
+    editedTimestamp: message.editedTimestamp || null,
+    tts: !!message.tts,
+    type: message.type,
+    url: message.url || null,
+    reference: message.reference || null,
+    attachments: getSafeAttachments(message.attachments),
+    mentions: getSafeMentions(message)
+  };
+}
+
+function getSafeAttachments(attachments)
+{
+  if (!attachments || !attachments.map) {
+    return [];
+  }
+  return attachments.map(function (attachment) {
+    return {
+      id: attachment.id,
+      name: attachment.name || null,
+      url: attachment.url || null,
+      proxyURL: attachment.proxyURL || null,
+      contentType: attachment.contentType || null,
+      size: attachment.size || 0,
+      height: attachment.height || null,
+      width: attachment.width || null,
+      ephemeral: !!attachment.ephemeral
+    };
+  });
+}
+
+function getSafeMentions(message)
+{
+  return {
+    users: message.mentions && message.mentions.users && message.mentions.users.map ? message.mentions.users.map(function (user) {
+      return user.id;
+    }) : [],
+    roles: message.mentions && message.mentions.roles && message.mentions.roles.map ? message.mentions.roles.map(function (role) {
+      return role.id;
+    }) : [],
+    channels: message.mentions && message.mentions.channels && message.mentions.channels.map ? message.mentions.channels.map(function (channel) {
+      return channel.id;
+    }) : []
+  };
 }
 
 function cleanChannelFilterList(channelFilterList)
