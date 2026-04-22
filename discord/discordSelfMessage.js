@@ -24,57 +24,66 @@ module.exports = function (RED) {
       };
 
       registerCallback('messageCreate', message => {
-        if (message.author !== bot.user) {
-          var msgid = RED.util.generateId();
-          var msg = {
-            _msgid: msgid
-          };
-          msg.payload = message.content;
-          msg.channel = Flatted.parse(Flatted.stringify(message.channel));
-          msg.member = Flatted.parse(Flatted.stringify(message.member));
-          msg.memberRoleNames = message.member ? message.member.roles.cache.each(function (item) {
-            return item.name;
-          }) : null;
-          msg.memberRoleIDs = message.member ? message.member.roles.cache.each(function (item) {
-            return item.id;
-          }) : null;
-
-          try {
-            msg.data = Flatted.parse(Flatted.stringify(message));
-            msg.data.attachments = Flatted.parse(Flatted.stringify(message.attachments));
-            msg.data.reference = message.reference;
-          } catch (e) {
-            node.warn("Could not set `msg.data`: JSON serialization failed");
-          }
-
-          if (channelFilterList && !channelFilterList.includes(msg.channel.id)){
-            return;
-          } else if (message.author.bot) {
-            msg.author = {
-              id: message.author.id,
-              bot: message.author.bot,
-              system: message.author.system,
-              flags: message.author.flags,
-              username: message.author.bot,
-              discriminator: message.author.discriminator,
-              avatar: message.author.avatar,
-              createdTimestamp: message.author.createdTimestamp,
-              tag: message.author.tag,
+        try {
+          if (message.author !== bot.user) {
+            var msgid = RED.util.generateId();
+            var msg = {
+              _msgid: msgid
             };
-            node.send(msg);
-          } else {
-            message.author.fetch(true).then(author => {
-              msg.author = Flatted.parse(Flatted.stringify(author));
+            msg.payload = message.content;
+            msg.channel = safeSerialize(message.channel);
+            msg.member = safeSerialize(message.member);
+            msg.memberRoleNames = message.member ? message.member.roles.cache.each(function (item) {
+              return item.name;
+            }) : null;
+            msg.memberRoleIDs = message.member ? message.member.roles.cache.each(function (item) {
+              return item.id;
+            }) : null;
+
+            try {
+              msg.data = safeSerialize(message);
+              msg.data.attachments = safeSerialize(message.attachments);
+              msg.data.reference = message.reference;
+            } catch (e) {
+              node.warn("Could not set `msg.data`: JSON serialization failed");
+            }
+
+            if (channelFilterList && !channelFilterList.includes(msg.channel.id)){
+              return;
+            } else if (message.author.bot) {
+              msg.author = {
+                id: message.author.id,
+                bot: message.author.bot,
+                system: message.author.system,
+                flags: message.author.flags,
+                username: message.author.bot,
+                discriminator: message.author.discriminator,
+                avatar: message.author.avatar,
+                createdTimestamp: message.author.createdTimestamp,
+                tag: message.author.tag,
+              };
               node.send(msg);
-            }).catch(error => {
-              node.error(error);
-              node.status({
-                fill: "red",
-                shape: "dot",
-                text: error
+            } else {
+              message.author.fetch(true).then(author => {
+                msg.author = safeSerialize(author);
+                node.send(msg);
+              }).catch(error => {
+                node.error(error);
+                node.status({
+                  fill: "red",
+                  shape: "dot",
+                  text: error
+                });
               });
-            });
+            }
           }
+        } catch (error) {
+          node.error(error);
+          node.status({
+            fill: "red",
+            shape: "dot",
+            text: error
+          });
         }
       });
 
@@ -105,6 +114,24 @@ module.exports = function (RED) {
   }
   RED.nodes.registerType("discordSelfMessage", discordSelfMessage);
 };
+
+function safeSerialize(value)
+{
+  if (value === undefined || value === null) {
+    return value;
+  }
+
+  try {
+    return Flatted.parse(Flatted.stringify(value));
+  } catch (error) {
+    // Fall back to plain JSON object to avoid runtime crashes on discord.js-selfbot internals.
+    try {
+      return JSON.parse(JSON.stringify(value));
+    } catch (fallbackError) {
+      return {};
+    }
+  }
+}
 
 function cleanChannelFilterList(channelFilterList)
 {
