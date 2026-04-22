@@ -61,17 +61,8 @@ module.exports = function (RED) {
               };
               node.send(msg);
             } else {
-              message.author.fetch(true).then(author => {
-                msg.author = getSafeAuthor(author);
-                node.send(msg);
-              }).catch(error => {
-                node.error(error);
-                node.status({
-                  fill: "red",
-                  shape: "dot",
-                  text: error
-                });
-              });
+              msg.author = getSafeAuthor(message.author);
+              node.send(msg);
             }
           }
         } catch (error) {
