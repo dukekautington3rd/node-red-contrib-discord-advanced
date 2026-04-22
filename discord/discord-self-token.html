@@ -1,0 +1,27 @@
+<script type="text/javascript">
+  RED.nodes.registerType('discord-self-token', {
+    category: 'config',
+    defaults: {
+      name: { value: "", required: true },
+    },
+    credentials: {
+      token: { type: "text" },
+    },
+    exportable: false,
+    label: function() {
+      return this.name;
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="discord-self-token">
+  <div class="form-row">
+    <label for="node-config-input-token"><i class="icon-bookmark"></i> User Token</label>
+    <input type="text" id="node-config-input-token">
+    <p>Use a Discord user token for this self message node configuration.</p>
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-name"><i class="icon-tag"></i> Name</label>
+    <input type="text" id="node-config-input-name">
+  </div>
+</script>

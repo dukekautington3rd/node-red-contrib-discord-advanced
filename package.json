@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "discord.js": "^14.11.0",
+    "discord.js-selfbot-v13": "^3.7.1",
     "flatted": "^3.2.5"
   },
   "bugs": {
@@ -31,13 +32,15 @@
   "node-red": {
     "nodes": {
       "discord-token": "discord/discord-token.js",
+      "discord-self-token": "discord/discord-self-token.js",
       "discordMessage": "discord/discordMessage.js",
+      "discordSelfMessage": "discord/discordSelfMessage.js",
       "discordMessageManager": "discord/discordMessageManager.js",
       "discordPermissions": "discord/discordPermissions.js",
       "discordReactionManager": "discord/discordReactionManager.js",
       "discordChannelName": "discord/discordChannelName.js",
       "discordMember": "discord/discordMember.js",
-      "discordActivity":"discord/discordActivity.js",
+      "discordActivity": "discord/discordActivity.js",
       "discordClient": "discord/discordClient.js",
       "discordInteraction": "discord/discordInteraction.js",
       "discordInteractionManager": "discord/discordInteractionManager.js",

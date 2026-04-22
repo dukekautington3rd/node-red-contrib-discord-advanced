@@ -34,9 +34,10 @@ The [Wiki](https://github.com/Markoudstaal/node-red-contrib-discord-advanced/wik
 
 ## Nodes
 
-node-red-contrib-discord-advanced gives you access to 13 nodes:
+node-red-contrib-discord-advanced gives you access to 14 nodes:
 
 * **discordMessage** is a node with no inputs and one output allowing you to receive notifications of incoming messages.
+* **discordSelfMessage** is a node with no inputs and one output allowing you to receive notifications of incoming messages by using a Discord user token.
 * **discordMessageManager** allows (embed) messages to be sent to either channels or privatly to user. It also allows for editing and deleting of (embed) messages.
 * **discordReactionManager** that allows you to listen to reactions on a message.
 * **discordPermissions** allows you to check the permissions of a specifc user. This is useful when you get the user from another source than the discordMessage node. discorPermissions lets you to add role to an user and to remove role.

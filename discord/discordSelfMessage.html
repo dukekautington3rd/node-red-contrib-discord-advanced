@@ -1,0 +1,60 @@
+<script type="text/javascript">
+  RED.nodes.registerType('discordSelfMessage', {
+    category: 'discord',
+    color: '#7289da',
+    defaults: {
+      name: {
+        value: "",
+        required: false
+      },
+      channelIdFilter: {
+        value: "",
+        required: false
+      },
+      token: {
+        value: "",
+        required: true,
+        type: "discord-self-token"
+      }
+    },
+    inputs: 0,
+    outputs: 1,
+    icon: "discord.png",
+    label: function () {
+      return this.name || "discordSelfMessage";
+    }
+  });
+</script>
+<script type="text/x-red" data-template-name="discordSelfMessage">
+  <div class="form-row">
+    <label for="node-input-token"><i class="icon-tag"></i> self token</label>
+    <input type="text" id="node-input-token" placeholder="self token">
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-channelIdFilter"><i class="icon-tag"></i> Channel Filter</label>
+    <input type="text" id="node-input-channelIdFilter" placeholder="Channel Id Filter">
+  </div>
+</script>
+<script type="text/x-red" data-help-name="discordSelfMessage">
+  <p>Node to receive Discord messages by using a user token configuration.</p>
+
+  <h3>Outputs</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">string</span></dt>
+    <dd>the textual content of the message</dd>
+    <dt>channel <span class="property-type">Object</span></dt>
+    <dd>an Object containing info on the channel the message was sent in</dd>
+    <dt>author <span class="property-type">Object</span></dt>
+    <dd>an Object containing info on the author of the message</dd>
+    <dt>memberRoleNames <span class="property-type">Array</span></dt>
+    <dd>an array of all the roles names the author has</dd>
+    <dt>memberRoleIDs <span class="property-type">Array</span></dt>
+    <dd>an array of all the roles IDs the author has</dd>
+    <dt>data <span class="property-type">Object</span></dt>
+    <dd>the full message Object sent by discord</dd>
+  </dl>
+</script>
