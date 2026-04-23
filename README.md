@@ -30,6 +30,17 @@ This repository builds on [node-red-contrib-discord](https://github.com/jorisvdd
 
 ## Installation and documentation
 
+### Install from GitHub fork
+
+In your Node-RED user directory, install directly from this fork:
+
+```bash
+cd ~/.node-red
+npm install github:dukekautington3rd/node-red-contrib-discord-advanced
+```
+
+For containerized Node-RED, run the install command in the Node-RED `userDir` (for example `/data`) and restart the runtime if needed.
+
 The [Wiki](https://github.com/Markoudstaal/node-red-contrib-discord-advanced/wiki) is still being written when it comes to documentation but you can find a guide on how to install and setup the nodes [here](https://github.com/Markoudstaal/node-red-contrib-discord-advanced/wiki/Installation-and-setup).
 
 ## Nodes
